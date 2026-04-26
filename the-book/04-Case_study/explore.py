@@ -1,5 +1,3 @@
-
-
 import polars as pl
 from plotnine import *
 
@@ -11,7 +9,7 @@ population = pl.read_csv("the-book/04-Case_study/neiss/population.tsv", separato
 population.head(3)
 
 
-selected = injuries.filter(pl.col("prod_code")==649)
+selected = injuries.filter(pl.col("prod_code") == 649)
 
 selected.shape
 
@@ -20,9 +18,7 @@ selected.head()
 # weighted count by location
 (
     selected.group_by("location")
-    .agg(
-        n=pl.col("weight").sum()
-    )
+    .agg(n=pl.col("weight").sum())
     .sort(by="n", descending=True)
 )
 
@@ -31,31 +27,20 @@ selected.head()
 
 (
     selected.group_by("body_part")
-    .agg(
-        n=pl.col("weight").sum()
-    )
+    .agg(n=pl.col("weight").sum())
     .sort(by="n", descending=True)
 )
-
 
 
 # weighted count by diagnosis
-(
-    selected.group_by("diag")
-    .agg(
-        n=pl.col("weight").sum()
-    )
-    .sort(by="n", descending=True)
-)
+(selected.group_by("diag").agg(n=pl.col("weight").sum()).sort(by="n", descending=True))
 
 
 # pattern across sex and age
 
 agg_by_age_sex = (
     selected.group_by(["age", "sex"])
-    .agg(
-        n=pl.col("weight").sum()
-    )
+    .agg(n=pl.col("weight").sum())
     .sort(by="n", descending=True)
 )
 
@@ -68,11 +53,9 @@ agg_by_age_sex = (
 
 agg_by_age_sex = (
     selected.group_by(["age", "sex"])
-    .agg(
-        n=pl.col("weight").sum()
-    )
+    .agg(n=pl.col("weight").sum())
     .join(population, how="left", on=["age", "sex"])
-    .with_columns(rate = pl.col("n") / pl.col("population") * 1e4)
+    .with_columns(rate=pl.col("n") / pl.col("population") * 1e4)
 )
 
 (

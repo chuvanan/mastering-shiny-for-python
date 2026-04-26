@@ -1,5 +1,3 @@
-
-
 from shiny import App, render, ui
 
 
@@ -12,7 +10,7 @@ app_ui = ui.page_fluid(
         max=100,
         value=5,
         step=5,
-        animate=True
+        animate=True,
     )
 )
 

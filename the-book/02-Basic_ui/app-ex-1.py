@@ -1,7 +1,3 @@
-
-
-
-
 from shiny import App, render, ui
 
 # text input

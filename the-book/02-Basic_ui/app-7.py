@@ -1,9 +1,3 @@
-
-
-
-
-
-
 from shiny import App, render, ui
 from faicons import icon_svg
 

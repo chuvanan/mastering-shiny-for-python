@@ -1,5 +1,3 @@
-
-
 from shiny import App, render, ui, reactive
 import polars as pl
 from plotnine import *
@@ -16,61 +14,35 @@ product_codes = dict(zip(products["prod_code"], products["title"]))
 app_ui = ui.page_fluid(
     ui.row(
         ui.column(
-            8,
-            ui.input_select("code", "Product", choices = product_codes, width="100%")
+            8, ui.input_select("code", "Product", choices=product_codes, width="100%")
         ),
-        ui.column(
-            2,
-            ui.input_select("y", "Y axis", ["rate", "count"], width="100%")
-        )
+        ui.column(2, ui.input_select("y", "Y axis", ["rate", "count"], width="100%")),
     ),
     ui.row(
-        ui.column(
-            4,
-            ui.output_data_frame("diag")
-        ),
-        ui.column(
-            4,
-            ui.output_data_frame("body_part")
-        ),
-        ui.column(
-            4,
-            ui.output_data_frame("location")
-        )
+        ui.column(4, ui.output_data_frame("diag")),
+        ui.column(4, ui.output_data_frame("body_part")),
+        ui.column(4, ui.output_data_frame("location")),
     ),
+    ui.row(ui.column(12, ui.output_plot("age_sex", width="600px"))),
     ui.row(
-        ui.column(
-            12,
-            ui.output_plot("age_sex", width="600px")
-        )
+        ui.column(2, ui.input_action_button("story", "Tell me a story")),
+        ui.column(10, ui.output_text("narrative")),
     ),
-    ui.row(
-        ui.column(
-            2,
-            ui.input_action_button("story", "Tell me a story")
-        ),
-        ui.column(
-            10,
-            ui.output_text("narrative")
-        )
-    )
 )
 
 
 def server(input, output, session):
-
     @reactive.calc
     def selected():
-        res = injuries.filter(pl.col("prod_code")==input.code())
+        res = injuries.filter(pl.col("prod_code") == input.code())
         return res
 
     @reactive.calc
     def agg_():
         res = (
-            selected().group_by(["age", "sex"])
-            .agg(
-                n=pl.col("weight").sum()
-            )
+            selected()
+            .group_by(["age", "sex"])
+            .agg(n=pl.col("weight").sum())
             .join(population, how="left", on=["age", "sex"])
             .with_columns(rate=pl.col("n") / pl.col("population") * 1e4)
         )
@@ -79,10 +51,9 @@ def server(input, output, session):
     @render.data_frame
     def diag():
         res = (
-            selected().group_by("diag")
-            .agg(
-                n=pl.col("weight").sum().cast(pl.Int32)
-            )
+            selected()
+            .group_by("diag")
+            .agg(n=pl.col("weight").sum().cast(pl.Int32))
             .sort(by="n", descending=True)
             .head(5)
         )
@@ -91,10 +62,9 @@ def server(input, output, session):
     @render.data_frame
     def body_part():
         res = (
-            selected().group_by("body_part")
-            .agg(
-                n=pl.col("weight").sum().cast(pl.Int32)
-            )
+            selected()
+            .group_by("body_part")
+            .agg(n=pl.col("weight").sum().cast(pl.Int32))
             .sort(by="n", descending=True)
             .head(5)
         )
@@ -103,10 +73,9 @@ def server(input, output, session):
     @render.data_frame
     def location():
         res = (
-            selected().group_by("location")
-            .agg(
-                n=pl.col("weight").sum().cast(pl.Int32)
-            )
+            selected()
+            .group_by("location")
+            .agg(n=pl.col("weight").sum().cast(pl.Int32))
             .sort(by="n", descending=True)
             .head(5)
         )
@@ -133,7 +102,6 @@ def server(input, output, session):
     def narrative():
         sample_narr = selected()["narrative"].sample(1)[0]
         return sample_narr
-
 
 
 app = App(app_ui, server)

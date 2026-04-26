@@ -1,21 +1,11 @@
-
-
-
-
-
-
 from shiny import App, render, ui
 import rdatasets
 
 # data table output
-app_ui = ui.page_fluid(
-    ui.output_table("static"),
-    ui.output_data_frame("dynamic")
-)
+app_ui = ui.page_fluid(ui.output_table("static"), ui.output_data_frame("dynamic"))
 
 
 def server(input, output, session):
-    
     @render.table
     def static():
         mtcars = rdatasets.data("mtcars")
